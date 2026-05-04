@@ -10,6 +10,7 @@ library(ggbiplot)
 library(FactoMineR)
 library(factoextra)
 library(DT)
+library(plotly)
 
 # ============================================================
 # UI
@@ -58,7 +59,10 @@ ui <- navbarPage(
       mainPanel(
         width = 9,
         h4("PCA Biplot"),
-        plotOutput("pca_biplot", height = "500px"),
+        tabsetPanel(
+          tabPanel("靜態圖", plotOutput("pca_biplot", height = "500px")),
+          tabPanel("互動式 (plotly)", plotlyOutput("pca_biplot_plotly", height = "500px"))
+        ),
         tags$hr(),
         fluidRow(
           column(6,
@@ -90,7 +94,10 @@ ui <- navbarPage(
       mainPanel(
         width = 9,
         h4("CA Biplot"),
-        plotOutput("ca_biplot", height = "500px"),
+        tabsetPanel(
+          tabPanel("靜態圖", plotOutput("ca_biplot", height = "500px")),
+          tabPanel("互動式 (plotly)", plotlyOutput("ca_biplot_plotly", height = "500px"))
+        ),
         tags$hr(),
         fluidRow(
           column(6,
@@ -119,7 +126,8 @@ ui <- navbarPage(
           tags$li("R Shiny + bslib（UI 框架與主題）"),
           tags$li("ggbiplot（PCA biplot）"),
           tags$li("FactoMineR + factoextra（CA 分析與視覺化）"),
-          tags$li("DT（互動式表格）")
+          tags$li("DT（互動式表格）"),
+          tags$li("plotly（互動式圖表，hover 檢視資料）")
         ),
         h4("參考資料"),
         tags$ul(
@@ -175,6 +183,40 @@ server <- function(input, output, session) {
     g <- g + theme(legend.direction = "horizontal", legend.position = "top",
                    text = element_text(size = 14))
     g
+  })
+
+  # --- PCA biplot 互動版（plotly，加分功能）---
+  # 用 ggplot2 手動繪製 PCA scatter，加入 hover 資訊，再轉 plotly
+  output$pca_biplot_plotly <- renderPlotly({
+    ir.pca <- pca_result()
+    pc_x <- as.integer(gsub("PC", "", input$pc_x))
+    pc_y <- as.integer(gsub("PC", "", input$pc_y))
+    validate(need(pc_x != pc_y, "請選擇兩個不同的主成分"))
+
+    scores <- as.data.frame(ir.pca$x)
+    scores$Species <- iris$Species
+    scores$Sepal.Length <- iris$Sepal.Length
+    scores$Sepal.Width <- iris$Sepal.Width
+    scores$Petal.Length <- iris$Petal.Length
+    scores$Petal.Width <- iris$Petal.Width
+
+    pc_x_name <- paste0("PC", pc_x)
+    pc_y_name <- paste0("PC", pc_y)
+
+    g <- ggplot(scores, aes(
+        x = .data[[pc_x_name]], y = .data[[pc_y_name]],
+        color = Species,
+        text = paste0("Species: ", Species,
+                      "\nSepal.L: ", Sepal.Length, " / Sepal.W: ", Sepal.Width,
+                      "\nPetal.L: ", Petal.Length, " / Petal.W: ", Petal.Width,
+                      "\n", pc_x_name, ": ", round(.data[[pc_x_name]], 3),
+                      "\n", pc_y_name, ": ", round(.data[[pc_y_name]], 3)))) +
+      geom_point(size = 2, alpha = 0.8) +
+      stat_ellipse(level = 0.68) +
+      labs(x = pc_x_name, y = pc_y_name) +
+      theme_minimal()
+
+    ggplotly(g, tooltip = "text")
   })
 
   # --- Scree Plot（含累積變異曲線，加分功能）---
@@ -264,6 +306,18 @@ server <- function(input, output, session) {
                    title = paste("CA Biplot:", ca_res$var_name, "x Species")) +
       theme_minimal() +
       theme(text = element_text(size = 14))
+  })
+
+  # --- CA biplot 互動版（plotly，加分功能）---
+  output$ca_biplot_plotly <- renderPlotly({
+    ca_res <- ca_result()
+    g <- fviz_ca_biplot(ca_res$ca_obj,
+                        repel = TRUE,
+                        col.row = "#2c3e50",
+                        col.col = "#e74c3c",
+                        title = paste("CA Biplot:", ca_res$var_name, "x Species")) +
+      theme_minimal()
+    ggplotly(g)
   })
 
   # --- 列聯表 ---
