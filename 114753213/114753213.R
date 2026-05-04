@@ -1,7 +1,7 @@
 # NCCU DS HW4 - PCA & CA Shiny App
 # 林秋瑢 114753213
 # 本機預覽：在 R console 執行 library(shiny); runApp("114753213")
-# Claude Code, 2026-05-03
+# 參考 hw4 README example、ggbiplot 文件、FactoMineR 範例整合改寫
 
 library(shiny)
 library(bslib)
@@ -129,7 +129,7 @@ ui <- navbarPage(
         ),
         tags$hr(),
         p("林秋瑢 114753213 | NCCU DS 2026"),
-        p("# Claude Code, 2026-05-03")
+        p("參考: hw4 README example, ggbiplot vignette, FactoMineR docs")
       )
     )
   )
@@ -229,7 +229,7 @@ server <- function(input, output, session) {
     var_name <- input$ca_var
     n_bins <- input$ca_bins
 
-    # 將連續變數離散化 # Claude Code, 2026-05-03
+    # 將連續變數離散化，參考 FactoMineR CA 範例
     bin_labels <- if (n_bins == 2) {
       c("Low", "High")
     } else if (n_bins == 3) {

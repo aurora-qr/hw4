@@ -5,6 +5,6 @@ account: qiurong
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17285566
-bundleId: 11943612
+bundleId: 11943633
 url: https://qiurong.shinyapps.io/NCCU_DS2024_hw4_114753213/
 version: 1
