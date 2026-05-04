@@ -128,7 +128,7 @@ ui <- navbarPage(
           tags$li("FactoMineR 官方文件")
         ),
         tags$hr(),
-        p("林秋瑢 114753213 | NCCU DS 2024"),
+        p("林秋瑢 114753213 | NCCU DS 2026"),
         p("# Claude Code, 2026-05-03")
       )
     )
