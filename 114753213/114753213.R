@@ -94,10 +94,7 @@ ui <- navbarPage(
       mainPanel(
         width = 9,
         h4("CA Biplot"),
-        tabsetPanel(
-          tabPanel("靜態圖", plotOutput("ca_biplot", height = "500px")),
-          tabPanel("互動式 (plotly)", plotlyOutput("ca_biplot_plotly", height = "500px"))
-        ),
+        plotOutput("ca_biplot", height = "500px"),
         tags$hr(),
         fluidRow(
           column(6,
@@ -306,18 +303,6 @@ server <- function(input, output, session) {
                    title = paste("CA Biplot:", ca_res$var_name, "x Species")) +
       theme_minimal() +
       theme(text = element_text(size = 14))
-  })
-
-  # --- CA biplot 互動版（plotly，加分功能）---
-  output$ca_biplot_plotly <- renderPlotly({
-    ca_res <- ca_result()
-    g <- fviz_ca_biplot(ca_res$ca_obj,
-                        repel = TRUE,
-                        col.row = "#2c3e50",
-                        col.col = "#e74c3c",
-                        title = paste("CA Biplot:", ca_res$var_name, "x Species")) +
-      theme_minimal()
-    ggplotly(g)
   })
 
   # --- 列聯表 ---
